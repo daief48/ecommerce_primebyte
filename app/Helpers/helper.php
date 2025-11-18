@@ -8,15 +8,20 @@ use App\Models\Page;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\Mail;
 
+
 function getCategories()
 {
-    return Category::orderBy('name', 'asc')
-        ->with('sub_category')
-        ->orderBy('id', 'DESC')
+    return Category::with(['sub_category' => function($query) {
+            $query->where('showHome', 'Yes')
+                  ->where('status', 1)
+                  ->orderBy('name', 'asc'); // subcategories ordered by name
+        }])
         ->where('showHome', 'Yes')
         ->where('status', 1)
+        ->orderBy('name', 'asc') // categories ordered by name
         ->get();
 }
+
 
 function getProductImage($productId)
 {

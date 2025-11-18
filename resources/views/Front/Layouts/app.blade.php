@@ -6,8 +6,7 @@
     <title>Online Shop - Home
     </title>
     <meta name="description" content="" />
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1, user-scalable=no" />
 
     <meta name="HandheldFriendly" content="True" />
     <meta name="pinterest" content="nopin" />
@@ -44,9 +43,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;500&family=Raleway:ital,wght@0,400;0,600;0,800;1,200&family=Roboto+Condensed:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;500&family=Raleway:ital,wght@0,400;0,600;0,800;1,200&family=Roboto+Condensed:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
 
     <!-- Fav Icon -->
     <link rel="shortcut icon" type="image/x-icon" href="#" />
@@ -78,8 +75,7 @@
                     @endif
                     <form action="{{ route('front.shop') }}">
                         <div class="input-group">
-                            <input value="{{ Request::get('search') }}" id="search" type="text"
-                                placeholder="Search For Products" name="search" class="form-control">
+                            <input value="{{ Request::get('search') }}" id="search" type="text" placeholder="Search For Products" name="search" class="form-control">
                             <button type="submit" class="input-group-text">
                                 <i class="fa fa-search"></i>
                             </button>
@@ -97,9 +93,7 @@
                     <span class="h2 text-uppercase text-primary bg-dark">Online</span>
                     <span class="h2 text-uppercase text-white px-2">SHOP</span>
                 </a>
-                <button class="navbar-toggler menu-btn" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler menu-btn" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <!-- <span class="navbar-toggler-icon icon-menu"></span> -->
                     <i class="navbar-toggler-icon fas fa-bars"></i>
                 </button>
@@ -109,23 +103,25 @@
                         @if (getCategories()->isNotEmpty())
                         @foreach (getCategories() as $category)
                         <li class="nav-item dropdown">
-                            <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown"
-                                aria-expanded="false">
+                            <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ $category->name }}
                             </button>
+
                             @if ($category->sub_category->isNotEmpty())
-                            @foreach ($category->sub_category as $subCategory)
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item nav-link"
-                                        href="{{ route('front.shop', [$category->slug, $subCategory->slug]) }}">{{
-                                        $subCategory->name }}</a>
+                                @foreach ($category->sub_category as $subCategory)
+                                <li>
+                                    <a class="dropdown-item nav-link" href="{{ route('front.shop', [$category->slug, $subCategory->slug]) }}">
+                                        {{ $subCategory->name }}
+                                    </a>
                                 </li>
+                                @endforeach
                             </ul>
-                            @endforeach
                             @endif
                         </li>
                         @endforeach
                         @endif
+
                     </ul>
                 </div>
                 <div class="right-nav py-0">
@@ -249,14 +245,14 @@
         function addToCart(id) {
             // alert(id);
             $.ajax({
-                url: "{{ route('front.addToCart') }}",
-                type: "POST",
-                data: {
-                    id: id,
-                    _token: "{{ csrf_token() }}"
-                },
-                dataType: "json",
-                success: function(response) {
+                url: "{{ route('front.addToCart') }}"
+                , type: "POST"
+                , data: {
+                    id: id
+                    , _token: "{{ csrf_token() }}"
+                }
+                , dataType: "json"
+                , success: function(response) {
                     if (response.status == true) {
                         window.location.href = "{{ route('front.cart') }}";
                     } else {
@@ -269,14 +265,14 @@
         function addToWishList(id) {
             // alert(id);
             $.ajax({
-                url: "{{ route('front.addToWishList') }}",
-                type: "POST",
-                data: {
-                    id: id,
-                    _token: "{{ csrf_token() }}"
-                },
-                dataType: "json",
-                success: function(response) {
+                url: "{{ route('front.addToWishList') }}"
+                , type: "POST"
+                , data: {
+                    id: id
+                    , _token: "{{ csrf_token() }}"
+                }
+                , dataType: "json"
+                , success: function(response) {
                     if (response.status == true) {
 
                         $('#wishlistModal .modal-body').html(response.message);
@@ -287,6 +283,7 @@
                 }
             });
         }
+
     </script>
 
     @yield('customJs')
