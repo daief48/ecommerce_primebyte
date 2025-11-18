@@ -89,17 +89,16 @@ class ShopController extends Controller
             ->withCount('productRatings')
             ->withSum('productRatings', 'rating')
             ->with(['product_images', 'productRatings'])->first();
+        
+        $relatedProducts = Product::where('slug','!=', $slug)->where('category_id',$product->category_id)->get();
+
+        // return $relatedProducts;
         // dd($product);
         if ($product == null) {
             abort(404);
         }
 
-        $relatedProducts = [];
-        if ($product->related_products != '') {
-            $productArray = explode(',', $product->related_products);
-            $relatedProducts = Product::whereIn('id', $productArray)->where('status', 1)->get();
-        }
-
+      
         // "product_ratings_count" => 1
         // "product_ratings_sum_rating" => 5.0
 

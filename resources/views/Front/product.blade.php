@@ -1,364 +1,262 @@
 @extends('Front.layouts.app')
+
+@section('style')
+<!-- EasyZoom CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/easyzoom/2.5.0/easyzoom.css" integrity="sha512-K/qe6a8tW+dKf/lZH/9O9cLFELzIq96vAcoJYp/0vZy6TPGTOs7Y9ylc6O5CkX+kXxSUoRcbL2u7s2kTnyFhAA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<style>
+/* ---------- Breadcrumb ---------- */
+.section-5 {
+    background: #f8f9fa;
+}
+.section-5 .breadcrumb a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #555;
+}
+.section-5 .breadcrumb li {
+    font-size: 0.9rem;
+}
+
+/* ---------- Product Section ---------- */
+.section-7 .product-image-wrapper {
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    cursor: zoom-in;
+}
+.section-7 .product-image-wrapper img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+/* Thumbnail gallery */
+.thumb-images img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.thumb-images img:hover {
+    border: 2px solid #007bff;
+    transform: scale(1.1);
+}
+
+/* ---------- Product Details ---------- */
+.section-7 h1 {
+    font-weight: 700;
+    font-size: 2rem;
+}
+.section-7 .price h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #d9534f;
+}
+.section-7 .price del {
+    color: #999;
+    font-size: 1rem;
+    margin-left: 10px;
+}
+.section-7 .badge-sale {
+    background-color: #d9534f;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    border-radius: 5px;
+}
+.section-7 .btn-dark {
+    border-radius: 50px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+.section-7 .btn-dark:hover {
+    background-color: #007bff;
+}
+
+/* ---------- Star Rating ---------- */
+.star-rating {
+    font-size: 1.2rem;
+    position: relative;
+}
+.star-rating .back-stars i {
+    color: #e4e5e9;
+}
+.star-rating .front-stars {
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #ffc107;
+}
+
+/* ---------- Tabs ---------- */
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 600;
+    color: #333;
+}
+.nav-tabs .nav-link.active {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+/* ---------- Reviews ---------- */
+.review-card {
+    border: 1px solid #e3e3e3;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- Related Products ---------- */
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+}
+.card h6 {
+    font-weight: 600;
+}
+.card del {
+    color: #999;
+}
+
+/* ---------- Sticky Add to Cart ---------- */
+.sticky-cart {
+    position: sticky;
+    top: 20px;
+}
+</style>
+@endsection
+
 @section('content')
-<section class="section-5 pt-3 pb-3 mb-3 bg-white">
+<!-- Breadcrumb -->
+<section class="section-5 pt-4 pb-2">
     <div class="container">
-        <div class="light-font">
-            <ol class="breadcrumb primary-color mb-0">
-                <li class="breadcrumb-item"><a class="white-text" href="{{ route('front.home') }}">Home</a></li>
-                <li class="breadcrumb-item"><a class="white-text" href="{{ route('front.shop') }}">Shop</a></li>
-                <li class="breadcrumb-item">{{ $product->title }}</li>
-            </ol>
-        </div>
+        <ol class="breadcrumb bg-transparent p-0 mb-0">
+            <li class="breadcrumb-item"><a href="{{ route('front.home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('front.shop') }}">Shop</a></li>
+            <li class="breadcrumb-item active">{{ $product->title }}</li>
+        </ol>
     </div>
 </section>
 
-<section class="section-7 pt-3 mb-3">
+<!-- Product Section -->
+<section class="section-7 py-5">
     <div class="container">
-        @if (Session::has('success'))
-        <div class="col-md-12">
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {!! Session::get('success') !!}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-        @endif
-        @if (Session::has('error'))
-        <div class="col-md-12">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ Session::get('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-        @endif
-        <div class="row ">
+        <div class="row g-4">
+            <!-- Product Images -->
             <div class="col-md-5">
-                <div id="product-carousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner bg-light">
-                        @if ($product->product_images->isNotEmpty())
-                        @foreach ($product->product_images as $key => $productImage)
-                        @if (!empty($productImage->image))
-                        <div class="carousel-item {{ ($key == 0) ? 'active' :'' }}">
-                            <img class="card-img-top" style="height: 500px;"
-                                src="{{ asset('uploads/products/large/' . $productImage->image) }}">
-                        </div>
-                        @else
-                        <img class="card-img-top" src="{{ asset('admin-assets/img/default-150x150.png') }}">
+                @if($product->product_images->count() > 0)
+                <div class="easyzoom easyzoom--overlay mb-3">
+                    <a href="{{ asset('uploads/products/large/' . $product->product_images[0]->image) }}">
+                        <img src="{{ asset('uploads/products/large/' . $product->product_images[0]->image) }}" class="img-fluid rounded shadow">
+                        @if($product->compare_price > 0)
+                        <span class="badge-sale">Sale</span>
                         @endif
-                        @endforeach
-                        @endif
-                    </div>
-                    <a class="carousel-control-prev" href="#product-carousel" data-bs-slide="prev">
-                        <i class="fa fa-2x fa-angle-left text-dark"></i>
-                    </a>
-                    <a class="carousel-control-next" href="#product-carousel" data-bs-slide="next">
-                        <i class="fa fa-2x fa-angle-right text-dark"></i>
                     </a>
                 </div>
+
+                <!-- Thumbnails -->
+                <div class="d-flex gap-2 overflow-auto thumb-images">
+                    @foreach($product->product_images as $img)
+                    <a href="{{ asset('uploads/products/large/' . $img->image) }}" class="easyzoom-thumb" data-standard="{{ asset('uploads/products/large/' . $img->image) }}">
+                        <img src="{{ asset('uploads/products/large/' . $img->image) }}" class="img-thumbnail">
+                    </a>
+                    @endforeach
+                </div>
+                @else
+                <img class="img-fluid shadow rounded" src="{{ asset('admin-assets/img/default-150x150.png') }}" alt="No Image">
+                @endif
             </div>
+
+            <!-- Product Details -->
             <div class="col-md-7">
-                <div class="bg-light right">
-                    <h1>{{ $product->title }}</h1>
-                    <div class="d-flex mb-3">
-                        <div class="text-primary mr-2">
-                            <div class="star-rating product mt-2">
-                                <div class="back-stars">
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
+                <div class="p-4 bg-white rounded shadow sticky-cart">
+                    <h1 class="mb-3">{{ $product->title }}</h1>
 
-                                    <div class="front-stars" style="width: {{ $avgRatingPer }}%">
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Rating -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="star-rating me-2 position-relative">
+                            <div class="back-stars">@for($i=0;$i<5;$i++)<i class="fa fa-star"></i>@endfor</div>
+                            <div class="front-stars position-absolute top-0 start-0 overflow-hidden" style="width:{{ $avgRatingPer }}%">@for($i=0;$i<5;$i++)<i class="fa fa-star"></i>@endfor</div>
                         </div>
-                        <small class="pt-2 pl-1">({{ ($product->product_ratings_count > 1) ?
-                            $product->product_ratings_count . ' Reviews' :
-                            $product->product_ratings_count . ' Review' }})</small>
+                        <small>({{ $product->product_ratings_count }} Reviews)</small>
                     </div>
 
-                    <h2 class="price ">${{ $product->price }}</h2>
-                    @if ($product->compare_price > 0)
-                    <h2 class="price text-secondary"><del>${{ $product->compare_price }}</del></h2>
-                    @endif
-
-                    {!! $product->short_description !!}
-
-                    @if ($product->track_qty == 'Yes')
-                    @if ($product->qty > 0)
-                    <a class="btn btn-dark" href="javascript:void(0);" onclick="addToCart({{ $product->id }});">
-                        <i class="fa fa-shopping-cart"></i>&nbsp; Add To Cart
-                    </a>
-                    @else
-                    <a class="btn btn-dark">
-                        Out Of Stock
-                    </a>
-                    @endif
-                    @else
-                    <a class="btn btn-dark" href="javascript:void(0);" onclick="addToCart({{ $product->id }});">
-                        <i class="fa fa-shopping-cart"></i>&nbsp; Add To Cart
-                    </a>
-                    @endif
-                </div>
-            </div>
-
-            <div class="col-md-12 mt-5">
-                <div class="bg-light">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab"
-                                data-bs-target="#description" type="button" role="tab" aria-controls="description"
-                                aria-selected="true">Description</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping"
-                                type="button" role="tab" aria-controls="shipping" aria-selected="false">Shipping &
-                                Returns</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews"
-                                type="button" role="tab" aria-controls="reviews" aria-selected="false">Reviews</button>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="myTabContent">
-                        <div class="tab-pane fade show active" id="description" role="tabpanel"
-                            aria-labelledby="description-tab">
-                            {!! $product->description !!}
-                        </div>
-                        <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab">
-                            {!! $product->shipping_returns !!}
-                        </div>
-                        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <form action="" id="ratingForm" class="ratingForm" method="post">
-                                        @csrf
-                                        <h3 class="h4 pb-3">Write a Review</h3>
-                                        <div class="form-group col-md-6 mb-3">
-                                            <label for="name">Name</label>
-                                            <input type="text" class="form-control" name="name" id="name"
-                                                placeholder="Name">
-                                            <p></p>
-                                        </div>
-                                        <div class="form-group col-md-6 mb-3">
-                                            <label for="email">Email</label>
-                                            <input type="email" class="form-control" name="email" id="email"
-                                                placeholder="Email">
-                                            <p></p>
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <label for="rating">Rating</label>
-                                            <br>
-                                            <div class="rating" style="width: 10rem">
-                                                <input id="rating-5" type="radio" name="rating" value="5" /><label
-                                                    for="rating-5"><i class="fas fa-3x fa-star"></i></label>
-                                                <input id="rating-4" type="radio" name="rating" value="4" /><label
-                                                    for="rating-4"><i class="fas fa-3x fa-star"></i></label>
-                                                <input id="rating-3" type="radio" name="rating" value="3" /><label
-                                                    for="rating-3"><i class="fas fa-3x fa-star"></i></label>
-                                                <input id="rating-2" type="radio" name="rating" value="2" /><label
-                                                    for="rating-2"><i class="fas fa-3x fa-star"></i></label>
-                                                <input id="rating-1" type="radio" name="rating" value="1" /><label
-                                                    for="rating-1"><i class="fas fa-3x fa-star"></i></label>
-                                            </div>
-                                            <p></p>
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <label for="">How was your overall experience?</label>
-                                            <textarea name="comment" id="comment" class="form-control" cols="30"
-                                                rows="10" placeholder="How was your overall experience?"></textarea>
-                                            <p></p>
-                                        </div>
-                                        <div>
-                                            <button type="submit" class="btn btn-dark">Submit</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="col-md-12 mt-5">
-                                <div class="overall-rating mb-3">
-                                    <div class="d-flex">
-                                        <h1 class="h3 pe-3">{{ $rating }}</h1>
-                                        <div class="star-rating mt-2">
-                                            <div class="back-stars">
-                                                <i class="fa fa-star" aria-hidden="true"></i>
-                                                <i class="fa fa-star" aria-hidden="true"></i>
-                                                <i class="fa fa-star" aria-hidden="true"></i>
-                                                <i class="fa fa-star" aria-hidden="true"></i>
-                                                <i class="fa fa-star" aria-hidden="true"></i>
-
-                                                <div class="front-stars" style="width: {{ $avgRatingPer }}%">
-                                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="pt-2 ps-2">({{ ($product->product_ratings_count > 1) ?
-                                            $product->product_ratings_count . ' Reviews' :
-                                            $product->product_ratings_count . ' Review' }})</div>
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            @if ($product->productRatings->isNotEmpty())
-                            @foreach ($product->productRatings as $rating)
-                            @php
-                            $ratingPer = ($rating->rating * 100)/5;
-                            @endphp
-                            <div class="rating-group mb-4">
-                                <span class="author"><strong>{{ $rating->username }}</strong></span>
-                                <div class="star-rating mt-2">
-                                    <div class="back-stars">
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                        <i class="fa fa-star" aria-hidden="true"></i>
-
-                                        <div class="front-stars" style="width: {{ $ratingPer }}%">
-                                            <i class="fa fa-star" aria-hidden="true"></i>
-                                            <i class="fa fa-star" aria-hidden="true"></i>
-                                            <i class="fa fa-star" aria-hidden="true"></i>
-                                            <i class="fa fa-star" aria-hidden="true"></i>
-                                            <i class="fa fa-star" aria-hidden="true"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="my-3">
-                                    <p>{{ $rating->comment }}</p>
-                                </div>
-                            </div>
-                            @endforeach
-                            @else
-                            <div class="my-3">
-                                <p>No reviews found for this product.</p>
-                            </div>
-                            @endif
-                        </div>
+                    <!-- Price -->
+                    <div class="price mb-3">
+                        <h2>${{ $product->price }}</h2>
+                        @if($product->compare_price > 0)
+                        <del>${{ $product->compare_price }}</del>
+                        @endif
                     </div>
+
+                    <!-- Short Description -->
+                    <div class="mb-4">{!! $product->short_description !!}</div>
+
+                    <!-- Add to Cart Button -->
+                    @php $inStock = $product->track_qty=='Yes'? $product->qty>0 : true; @endphp
+                    <a class="btn btn-dark btn-lg {{ $inStock ? '' : 'disabled' }}" href="javascript:void(0);" @if($inStock) onclick="addToCart({{ $product->id }});" @endif>
+                        <i class="fa fa-shopping-cart"></i> {{ $inStock ? 'Add to Cart' : 'Out of Stock' }}
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-</section>
 
-@if(!empty($relatedProducts))
-<section class="pt-5 section-8">
-    <div class="container">
-        <div class="section-title">
-            <h2>Related Products</h2>
-        </div>
-        <div class="col-md-12">
-            <div id="related-products" class="carousel">
-                @foreach ($relatedProducts as $recordProduct)
-                @php
-                $productImage = $recordProduct->product_images->first();
-                @endphp
-                <div class="card product-card">
-                    <div class="product-image position-relative">
-                        <a href="{{ route('front.product', $recordProduct->slug) }}" class="product-img">
-                            @if (!empty($productImage))
-                            <img class="card-img-top" style="height: 300px;"
-                                src="{{ asset('uploads/products/large/' . $productImage->image) }}">
-                            @else
-                            <img class="card-img-top" src="{{ asset('admin-assets/img/default-150x150.png') }}">
-                            @endif
+        <!-- Related Products -->
+        @if(!empty($relatedProducts))
+        <section class="py-5 bg-white mt-5">
+            <h3 class="mb-4">Related Products</h3>
+            <div class="row g-4">
+                @foreach($relatedProducts as $rel)
+                @php $image = $rel->product_images->first(); @endphp
+                <div class="col-md-3">
+                    <div class="card h-100 shadow-sm rounded hover-shadow">
+                        <a href="{{ route('front.product', $rel->slug) }}">
+                            <img class="card-img-top rounded-top" style="height:250px; object-fit:cover;" src="{{ $image ? asset('uploads/products/large/'.$image->image) : asset('admin-assets/img/default-150x150.png') }}">
                         </a>
-                        <a class="whishlist" href="222"><i class="far fa-heart"></i></a>
-
-                        <div class="product-action">
-                            @if ($recordProduct->track_qty == 'Yes')
-                            @if ($recordProduct->qty > 0)
-                            <a class="btn btn-dark" href="javascript:void(0);"
-                                onclick="addToCart({{ $recordProduct->id }});">
-                                <i class="fa fa-shopping-cart"></i> Add To Cart
+                        <div class="card-body text-center">
+                            <h6>{{ $rel->title }}</h6>
+                            <p><strong>${{ $rel->price }}</strong> @if($rel->compare_price>0)<del class="text-muted ms-2">${{ $rel->compare_price }}</del>@endif</p>
+                            @php $inStock = $rel->track_qty=='Yes'? $rel->qty>0 : true; @endphp
+                            <a class="btn btn-dark btn-sm mt-2 {{ $inStock ? '' : 'disabled' }}" href="javascript:void(0);" @if($inStock) onclick="addToCart({{ $rel->id }});" @endif>
+                                {{ $inStock ? 'Add to Cart' : 'Out of Stock' }}
                             </a>
-                            @else
-                            <a class="btn btn-dark">
-                                Out Of Stock
-                            </a>
-                            @endif
-                            @else
-                            <a class="btn btn-dark" href="javascript:void(0);"
-                                onclick="addToCart({{ $recordProduct->id }});">
-                                <i class="fa fa-shopping-cart"></i> Add To Cart
-                            </a>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="card-body text-center mt-3">
-                        <a class="h6 link" href="">{{ $recordProduct->title }}</a>
-                        <div class="price mt-2">
-                            <span class="h5"><strong>${{ $recordProduct->price }}</strong></span>
-                            @if ($recordProduct->compare_price > 0)
-                            <span class="h6 text-underline"><del>${{ $recordProduct->compare_price }}</del></span>
-                            @endif
-
                         </div>
                     </div>
                 </div>
                 @endforeach
             </div>
-        </div>
+        </section>
+        @endif
     </div>
 </section>
-@endif
 @endsection
+
 @section('customJs')
-<script class="text/javascript">
-    $("#ratingForm").submit(function(e) {
-    e.preventDefault();
-    $.ajax({
-                url: '{{ route('front.saveRating', $product->id) }}',
-                type: 'post',
-                data: $(this).serializeArray(),
-                dataType: 'json',
-                success: function(response) {
-                    $("button[type='submit']").prop('disabled', false);
-                    var errors = response.errors;
-                    if (response.status == false) {
-                        if (errors['name']) {
-                            $("#name").addClass('is-invalid').siblings('p').addClass('invalid-feedback')
-                                .html(errors['name']);
-                        } else {
-                            $("#name").removeClass('is-invalid').siblings('p').removeClass(
-                                'invalid-feedback').html("");
-                        }
-                        if (errors['email']) {
-                            $("#email").addClass('is-invalid').siblings('p').addClass(
-                                    'invalid-feedback')
-                                .html(errors['email']);
-                        } else {
-                            $("#email").removeClass('is-invalid').siblings('p').removeClass(
-                                'invalid-feedback').html("");
-                        }
-                        if (errors['comment']) {
-                            $("#comment").addClass('is-invalid').siblings('p').addClass(
-                                    'invalid-feedback')
-                                .html(errors['comment']);
-                        } else {
-                            $("#comment").removeClass('is-invalid').siblings('p').removeClass(
-                                'invalid-feedback').html("");
-                        }
-                    } else {
-                        window.location.href = "{{ route('front.product', $product->slug) }}";
-                    }
-                },
-                error: function(jQXHR, exception) {
-                    console.log('Something went wrong');
-                }
-            })
+<!-- EasyZoom JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/easyzoom/2.5.0/easyzoom.js" integrity="sha512-6X6T8XJHUMCSd4ebQuUVuQ2avhF3Kj+GZg0WrXT4LxjT0CjRjrN+Y/NZb53Nq6Rjjzk77x6p9YqF/j3KHXdnSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+$(document).ready(function(){
+    var $easyzoom = $('.easyzoom').easyZoom();
+    var api = $easyzoom.data('easyZoom');
+
+    $('.easyzoom-thumb').on('click', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        api.swap($this.attr('href'), $this.data('standard'));
+    });
 });
 </script>
 @endsection
