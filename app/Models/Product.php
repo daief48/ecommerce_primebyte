@@ -40,8 +40,9 @@ class Product extends Model
     }
 
     // Add this relationship
-    public function size()
-    {
-        return $this->belongsTo(Size::class);
-    }
+public function sizes()
+{
+    return $this->belongsToMany(Size::class, 'product_size');
+}
+
 }

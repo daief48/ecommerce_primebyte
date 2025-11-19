@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -38,6 +39,8 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        Log::info('Store method called', ['request_data' => $request->all()]);
+
         $rules = [
             'title' => 'required',
             'slug' => 'required|unique:products',
@@ -46,16 +49,27 @@ class ProductController extends Controller
             'sku' => 'required|unique:products',
             'track_qty' => 'required|in:Yes,No',
             'is_featured' => 'required|in:Yes,No',
-            'size_id' => 'required|exists:sizes,id', // Validate size
         ];
 
         if (!empty($request->track_qty) && $request->track_qty == 'Yes') {
             $rules['qty'] = 'required|numeric';
         }
 
+        Log::info('Validating request', ['rules' => $rules]);
+
         $validator = Validator::make($request->all(), $rules);
 
-        if ($validator->passes()) {
+        if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ]);
+        }
+
+        try {
+            Log::info('Validation passed. Creating product...');
+
             $product = new Product();
             $product->title = $request->title;
             $product->slug = $request->slug;
@@ -63,7 +77,6 @@ class ProductController extends Controller
             $product->barcode = $request->barcode;
             $product->sub_category_id = $request->sub_category;
             $product->brand_id = $request->brand;
-            $product->size_id = $request->size_id; // Save size
             $product->price = $request->price;
             $product->compare_price = $request->compare_price;
             $product->sku = $request->sku;
@@ -74,12 +87,33 @@ class ProductController extends Controller
             $product->short_description = $request->short_description;
             $product->shipping_returns = $request->shipping_returns;
             $product->related_products = (!empty($request->related_products)) ? implode(',', $request->related_products) : '';
+            $product->sizes = json_encode($request->size_id);
+            $product->color_name = json_encode($request->color_name);
+            $product->color_code = json_encode($request->color_code);
+
+            Log::info('Saving product...', ['product_data' => $product]);
+
             $product->save();
+
+            Log::info('Product saved!', ['product_id' => $product->id]);
 
             // Save gallery images
             if (!empty($request->image_array)) {
+                Log::info('Processing gallery images', ['images' => $request->image_array]);
+
                 foreach ($request->image_array as $temp_image_id) {
+
+                    Log::info('Finding temp image...', ['temp_image_id' => $temp_image_id]);
+
                     $tempImageInfo = TempImage::find($temp_image_id);
+
+                    if (!$tempImageInfo) {
+                        Log::error('Temp image not found!', ['temp_image_id' => $temp_image_id]);
+                        continue;
+                    }
+
+                    Log::info('Temp image found', ['temp_image' => $tempImageInfo]);
+
                     $extArray = explode('.', $tempImageInfo->name);
                     $ext = last($extArray);
 
@@ -92,36 +126,49 @@ class ProductController extends Controller
                     $productImage->image = $imageName;
                     $productImage->save();
 
-                    $sourcePath = public_path() . '//temp/' . $tempImageInfo->name;
+                    $sourcePath = public_path() . '/temp/' . $tempImageInfo->name;
+
+                    Log::info('Processing image', [
+                        'source_path' => $sourcePath,
+                        'image_name' => $imageName
+                    ]);
 
                     // Large Image
                     $destPath = public_path() . '/uploads/products/large/' . $imageName;
-                    $image = Image::make($sourcePath);
-                    $image->resize(1400, null, function ($constraint) {
+                    Image::make($sourcePath)->resize(1400, null, function ($constraint) {
                         $constraint->aspectRatio();
-                    });
-                    $image->save($destPath);
+                    })->save($destPath);
 
                     // Small Image
                     $destPath = public_path() . '/uploads/products/small/' . $imageName;
-                    $image = Image::make($sourcePath);
-                    $image->fit(300, 300);
-                    $image->save($destPath);
+                    Image::make($sourcePath)->fit(300, 300)->save($destPath);
+
+                    Log::info('Saved image variations', ['image_name' => $imageName]);
                 }
             }
 
+            Log::info('Product stored successfully!');
             session()->flash('success', 'Product added successfully');
+
             return response()->json([
                 'status' => true,
                 'message' => 'Product added successfully'
             ]);
-        } else {
+        } catch (\Exception $e) {
+            Log::error('Error saving product', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()
+                'errors' => ['server' => 'Something went wrong while saving the product']
             ]);
         }
     }
+
 
     public function edit($productId)
     {
@@ -146,59 +193,62 @@ class ProductController extends Controller
         return view('Admin.products.edit', compact('product', 'categories', 'brands', 'subCategories', 'productImages', 'relatedProducts', 'sizes'));
     }
 
-    public function update($id, Request $request)
-    {
-        $product = Product::find($id);
+public function update($id, Request $request)
+{
+    $product = Product::findOrFail($id);
 
-        $rules = [
-            'title' => 'required',
-            'slug' => 'required|unique:products,slug,' . $product->id . ',id',
-            'category' => 'required',
-            'price' => 'required|numeric',
-            'sku' => 'required|unique:products,sku,' . $product->id . ',id',
-            'track_qty' => 'required|in:Yes,No',
-            'is_featured' => 'required|in:Yes,No',
-            'size_id' => 'required|exists:sizes,id', // Validate size
-        ];
+    $rules = [
+        'title' => 'required|string|max:255',
+        'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
+        'category' => 'required|exists:categories,id',
+        'price' => 'required|numeric|min:0',
+        'sku' => 'required|string|max:255|unique:products,sku,' . $product->id,
+        'track_qty' => 'required|in:Yes,No',
+        'is_featured' => 'required|in:Yes,No',
+    ];
 
-        if (!empty($request->track_qty) && $request->track_qty == 'Yes') {
-            $rules['qty'] = 'required|numeric';
-        }
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->passes()) {
-            $product->title = $request->title;
-            $product->slug = $request->slug;
-            $product->category_id = $request->category;
-            $product->barcode = $request->barcode;
-            $product->sub_category_id = $request->sub_category;
-            $product->brand_id = $request->brand;
-            $product->size_id = $request->size_id??null; // Update size
-            $product->price = $request->price;
-            $product->compare_price = $request->compare_price;
-            $product->sku = $request->sku;
-            $product->track_qty = $request->track_qty;
-            $product->is_featured = $request->is_featured;
-            $product->description = $request->description;
-            $product->qty = $request->qty;
-            $product->short_description = $request->short_description;
-            $product->shipping_returns = $request->shipping_returns;
-            $product->related_products = (!empty($request->related_products)) ? implode(',', $request->related_products) : '';
-            $product->save();
-
-            session()->flash('success', 'Product Updated successfully');
-            return response()->json([
-                'status' => true,
-                'message' => 'Product Updated successfully'
-            ]);
-        } else {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ]);
-        }
+    if ($request->track_qty === 'Yes') {
+        $rules['qty'] = 'required|numeric|min:0';
     }
+
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'errors' => $validator->errors()
+        ]);
+    }
+
+    // Assign fields
+    $product->title = $request->title;
+    $product->slug = $request->slug;
+    $product->category_id = $request->category;
+    $product->sub_category_id = $request->sub_category ?? null;
+    $product->brand_id = $request->brand ?? null;
+    $product->price = $request->price;
+    $product->compare_price = $request->compare_price ?? null;
+    $product->sku = $request->sku;
+    $product->barcode = $request->barcode ?? null;
+    $product->track_qty = $request->track_qty;
+    $product->qty = $request->track_qty === 'Yes' ? $request->qty : null;
+    $product->is_featured = $request->is_featured;
+    $product->description = $request->description ?? null;
+    $product->short_description = $request->short_description ?? null;
+    $product->shipping_returns = $request->shipping_returns ?? null;
+    $product->related_products = !empty($request->related_products) ? implode(',', $request->related_products) : null;
+    $product->sizes = !empty($request->size_id) ? json_encode($request->size_id) : null;
+            $product->color_name = json_encode($request->color_name);
+            $product->color_code = json_encode($request->color_code);
+
+    $product->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Product updated successfully'
+    ]);
+}
+
 
     public function destroy($id, Request $request)
     {

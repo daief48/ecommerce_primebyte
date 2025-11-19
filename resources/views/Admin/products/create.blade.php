@@ -1,6 +1,37 @@
 @extends('Admin.layouts.app')
+
+@section('style')
+<style>
+    .size-pill {
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .size-pill input {
+        display: none;
+    }
+
+    .size-pill span {
+        display: inline-block;
+        padding: 8px 18px;
+        border: 2px solid #0d6efd;
+        border-radius: 30px;
+        color: #0d6efd;
+        font-size: 14px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+    .size-pill input:checked+span {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+</style>
+@endsection
+
 @section('content')
-<!-- Content Header (Page header) -->
 <section class="content-header">
     <div class="container-fluid my-2">
         <div class="row mb-2">
@@ -12,380 +43,385 @@
             </div>
         </div>
     </div>
-    <!-- /.container-fluid -->
 </section>
-<!-- Main content -->
+
 <section class="content">
-    <!-- Default box -->
     <form action="" method="post" class="productForm" id="productForm">
         @csrf
         <div class="container-fluid">
             <div class="row">
+
+                {{-- LEFT SIDE --}}
                 <div class="col-md-8">
+
+                    {{-- BASIC INFO --}}
                     <div class="card mb-3">
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="title">Title</label>
-                                        <input type="text" name="title" id="title" class="form-control" placeholder="Title">
-                                        <p class="error"></p>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="slug">Slug</label>
-                                        <input type="text" readonly name="slug" id="slug" class="form-control" placeholder="Slug">
-                                        <p class="error"></p>
+                            <div class="mb-3">
+                                <label for="title">Title</label>
+                                <input type="text" name="title" id="title" class="form-control">
+                                <p class="error"></p>
+                            </div>
 
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="description">Short Description</label>
-                                        <textarea name="short_description" id="ahort_description" cols="30" rows="10" class="summernote" placeholder="Short Description">
-                                        </textarea>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="description">Description</label>
-                                        <textarea name="description" id="description" cols="30" rows="10" class="summernote" placeholder="Description"></textarea>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="description">Shipping and Returns</label>
-                                        <textarea name="shipping_returns" id="shipping_returns" cols="30" rows="10" class="summernote" placeholder="Description">
-                                        </textarea>
-                                    </div>
-                                </div>
+                            <div class="mb-3">
+                                <label for="slug">Slug</label>
+                                <input type="text" readonly name="slug" id="slug" class="form-control">
+                                <p class="error"></p>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Short Description</label>
+                                <textarea name="short_description" class="summernote"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Description</label>
+                                <textarea name="description" class="summernote"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Shipping & Returns</label>
+                                <textarea name="shipping_returns" class="summernote"></textarea>
                             </div>
                         </div>
                     </div>
+
+                    {{-- MEDIA --}}
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h2 class="h4 mb-3">Media</h2>
+                            <h4>Media</h4>
                             <div id="image" class="dropzone dz-clickable">
                                 <div class="dz-message needsclick">
-                                    <br>Drop files here or click to upload.<br><br>
+                                    Drop files here or click to upload.
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="row" id="product-gallery"></div>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h2 class="h4 mb-3">Pricing</h2>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="price">Price</label>
-                                        <input type="text" name="price" id="price" class="form-control" placeholder="Price">
-                                        <p class="error"></p>
 
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <label for="compare_price">Compare at Price</label>
-                                        <input type="text" name="compare_price" id="compare_price" class="form-control" placeholder="Compare Price">
-                                        <p class="text-muted mt-3">
-                                            To show a reduced price, move the product’s original price into Compare at
-                                            price. Enter a lower value into Price.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- PRICING --}}
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h2 class="h4 mb-3">Inventory</h2>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="sku">SKU (Stock Keeping Unit)</label>
-                                        <input type="text" name="sku" id="sku" class="form-control" placeholder="sku">
-                                        <p class="error"></p>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="barcode">Barcode</label>
-                                        <input type="text" name="barcode" id="barcode" class="form-control" placeholder="Barcode">
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="hidden" name="track_qty" value="No">
-                                            <input class="custom-control-input" type="checkbox" value="Yes" id="track_qty" name="track_qty" checked>
-                                            <label for="track_qty" class="custom-control-label">Track Quantity</label>
-                                            <p class="error"></p>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <input type="number" min="0" name="qty" id="qty" class="form-control" placeholder="Qty">
-                                        <p class="error"></p>
-                                    </div>
-                                </div>
+                            <h4>Pricing</h4>
+
+                            <div class="mb-3">
+                                <label>Price</label>
+                                <input type="text" name="price" id="price" class="form-control">
+                                <p class="error"></p>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Compare at Price</label>
+                                <input type="text" name="compare_price" id="compare_price" class="form-control">
+                                <p class="text-muted mt-2">
+                                    Enter original price here. Use lower price in “Price”.
+                                </p>
                             </div>
                         </div>
                     </div>
+
+                    {{-- INVENTORY --}}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h4>Inventory</h4>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>SKU</label>
+                                    <input type="text" name="sku" id="sku" class="form-control">
+                                    <p class="error"></p>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Barcode</label>
+                                    <input type="text" name="barcode" id="barcode" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="mt-3 custom-control custom-checkbox">
+                                <input type="hidden" name="track_qty" value="No">
+                                <input class="custom-control-input" type="checkbox" value="Yes" id="track_qty" name="track_qty" checked>
+                                <label for="track_qty" class="custom-control-label">Track Quantity</label>
+                            </div>
+
+                            <div class="mt-3">
+                                <input type="number" min="0" name="qty" id="qty" class="form-control" placeholder="Qty">
+                            </div>
+
+                            {{-- Optional Size --}}
+                            <div class="mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="1" id="enable-sizes">
+                                    <label class="form-check-label" for="enable-sizes">Add Sizes</label>
+                                </div>
+                                <div class=" flex-wrap gap-2 mt-2" id="size-container" style="display: none;">
+                                    @foreach($sizes as $size)
+                                    <label class="size-pill mx-2 my-2">
+                                        <input type="checkbox" name="size_id[]" value="{{ $size->id }}">
+                                        <span>{{ $size->name }}</span>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Optional Color --}}
+                            <div class="mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="1" id="enable-colors">
+                                    <label class="form-check-label" for="enable-colors">Add Colors</label>
+                                </div>
+                                <div id="color-container" style="display: none;" class="mt-2">
+                                    <div class="d-flex align-items-center mb-2 color-row">
+                                        <input type="text" name="color_name[]" class="form-control me-2" placeholder="Color Name">
+                                        <input type="color" name="color_code[]" class="form-control form-control-color" value="#ff0000">
+                                        <button type="button" class="btn btn-danger btn-sm ms-2 remove-color">Remove</button>
+                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" id="add-color">Add Color</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>  
                 </div>
+
+                {{-- RIGHT SIDE --}}
                 <div class="col-md-4">
+
+                    {{-- STATUS --}}
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h2 class="h4 mb-3">Product status</h2>
-                            <div class="mb-3">
-                                <select name="status" id="status" class="form-control">
-                                    <option value="1">Active</option>
-                                    <option value="0">Block</option>
-                                </select>
-                            </div>
+                            <h4>Product Status</h4>
+                            <select name="status" class="form-control">
+                                <option value="1">Active</option>
+                                <option value="0">Block</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <h2 class="h4  mb-3">Product category</h2>
-                            <div class="mb-3">
-                                <label for="category">Category</label>
-                                <select name="category" id="category" class="form-control">
-                                    <option value="">Select a Category</option>
-                                    @if ($categories->isNotEmpty())
-                                    @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                    @endforeach
-                                    @endif
-                                </select>
-                                <p class="error"></p>
-                            </div>
 
-                            
-
-                <!-- Size (Optional) -->
-                <div class="mb-3">
-                    <label for="size" class="form-label">Size (Optional)</label>
-                    <select name="size_id" id="size" class="form-control">
-                        <option value="">Select Size (Optional)</option>
-                        @foreach($sizes as $size)
-                            <option value="{{ $size->id }}" {{ old('size_id') == $size->id ? 'selected' : '' }}>
-                                {{ $size->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-
-                            <div class="mb-3">
-                                <label for="sub_category">Sub category</label>
-                                <select name="sub_category" id="sub_category" class="form-control">
-                                    <option value="">Select a Sub Category</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- CATEGORY --}}
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h2 class="h4 mb-3">Product brand</h2>
-                            <div class="mb-3">
-                                <select name="brand" id="brand" class="form-control">
-                                    <option value="">Select a Brand</option>
-                                    @if ($brands->isNotEmpty())
-                                    @foreach ($brands as $brand)
-                                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                                    @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h2 class="h4 mb-3">Featured product</h2>
-                            <div class="mb-3">
-                                <select name="is_featured" id="is_featured" class="form-control">
-                                    <option value="No">No</option>
-                                    <option value="Yes">Yes</option>
-                                </select>
-                                <p class="error"></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h2 class="h4 mb-3">Related Products</h2>
-                            <div class="mb-3">
-                                <select multiple class="related-products w-100" name="related_products[]" id="related_products">
+                            <h4>Category</h4>
 
-                                </select>
-                                <p class="error"></p>
-                            </div>
+                            <label>Category</label>
+                            <select name="category" id="category" class="form-control">
+                                <option value="">Select</option>
+                                @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+
+                            <label class="mt-3">Sub Category</label>
+                            <select name="sub_category" id="sub_category" class="form-control">
+                                <option value="">Select</option>
+                            </select>
+
                         </div>
                     </div>
+
+                    {{-- BRAND --}}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h4>Brand</h4>
+                            <select name="brand" class="form-control">
+                                <option value="">Select</option>
+                                @foreach ($brands as $brand)
+                                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- FEATURED --}}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h4>Featured Product</h4>
+                            <select name="is_featured" class="form-control">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- RELATED PRODUCTS --}}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h4>Related Products</h4>
+                            <select multiple class="related-products w-100" name="related_products[]" id="related_products"></select>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="pb-5 pt-3">
+            <div class="pt-3 pb-5">
                 <button type="submit" class="btn btn-primary">Create</button>
                 <a href="{{ route('products.list') }}" class="btn btn-outline-dark ml-3">Cancel</a>
             </div>
         </div>
     </form>
-    <!-- /.card -->
 </section>
-<!-- /.content -->
 @endsection
 
+
 @section('customJs')
+              {{-- Script --}}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Size toggle
+                            const enableSizes = document.getElementById('enable-sizes');
+                            const sizeContainer = document.getElementById('size-container');
+
+                            enableSizes.addEventListener('change', function() {
+                                sizeContainer.style.display = this.checked ? 'flex' : 'none';
+                            });
+
+                            // Color toggle and dynamic add/remove
+                            const enableColors = document.getElementById('enable-colors');
+                            const colorContainer = document.getElementById('color-container');
+                            const addColorBtn = document.getElementById('add-color');
+
+                            enableColors.addEventListener('change', function() {
+                                colorContainer.style.display = this.checked ? 'block' : 'none';
+                            });
+
+                            addColorBtn.addEventListener('click', function() {
+                                const newColorRow = document.createElement('div');
+                                newColorRow.classList.add('d-flex', 'align-items-center', 'mb-2', 'color-row');
+                                newColorRow.innerHTML = `
+            <input type="text" name="color_name[]" class="form-control me-2" placeholder="Color Name">
+            <input type="color" name="color_code[]" class="form-control form-control-color" value="#ff0000">
+            <button type="button" class="btn btn-danger btn-sm ms-2 remove-color">Remove</button>
+        `;
+                                colorContainer.insertBefore(newColorRow, addColorBtn);
+                            });
+
+                            colorContainer.addEventListener('click', function(e) {
+                                if (e.target.classList.contains('remove-color')) {
+                                    e.target.closest('.color-row').remove();
+                                }
+                            });
+                        });
+
+                    </script>
 <script>
+    /* RELATED PRODUCTS */
     $('.related-products').select2({
         ajax: {
             url: '{{ route("products.getProducts") }}'
             , dataType: 'json'
-            , tags: true
-            , multiple: true
             , minimumInputLength: 3
-            , processResults: function(data) {
-                return {
-                    results: data.tags
-                };
-            }
+            , processResults: data => ({
+                results: data.tags
+            })
         }
     });
 
 
+    /* FORM SUBMIT */
     $("#productForm").submit(function(event) {
         event.preventDefault();
-        var element = $(this);
+        var form = $(this);
 
         $("button[type=submit]").prop('disabled', true);
 
         $.ajax({
-            url: '{{ route('products.store') }}'
-            , type: 'post'
-            , data: element.serializeArray()
+            url: '{{ route("products.store") }}'
+            , type: 'POST'
+            , data: form.serializeArray()
             , dataType: 'json'
             , success: function(response) {
 
-                $("button[type=submit]").prop('disbled', false);
+                $("button[type=submit]").prop('disabled', false);
 
-
-                if (response['status'] == true) {
-
-                    $(".error").removeClass('is-invalid').siblings('p').removeClass(
-                        'invalid-feedback').html(
-                        "");
-
-                    $("input[type='text'], select, input[type='number']").removeClass('is-invalid');
-
+                if (response.status === true) {
                     window.location.href = "{{ route('products.list') }}";
-
-
                 } else {
+                    $(".error").html("").removeClass("invalid-feedback");
+                    $("input, select").removeClass('is-invalid');
 
-                    var errors = response['errors'];
-
-                    $(".error").removeClass('is-invalid').siblings('p').removeClass(
-                        'invalid-feedback').html(
-                        "");
-
-                    $("input[type='text'], select, input[type='number']").removeClass('is-invalid');
-
-                    $.each(errors, function(key, value) {
-                        $("#" + key).addClass('is-invalid').siblings('p').addClass(
-                            'invalid-feedback').html(value);
+                    $.each(response.errors, function(key, value) {
+                        $("#" + key)
+                            .addClass("is-invalid")
+                            .siblings("p")
+                            .addClass("invalid-feedback")
+                            .html(value);
                     });
-
                 }
-
-            }
-            , error: function(jqXHR, exception) {
-                console.log("Something went wrong");
             }
         });
     });
 
 
+    /* AUTO SLUG */
     $("#title").change(function() {
-
-        element = $(this);
-
-        $("button[type=submit]").prop('disbled', true);
-
         $.ajax({
-            url: '{{ route('getSlug') }}'
-            , type: 'get'
+            url: '{{ route("getSlug") }}'
+            , type: 'GET'
             , data: {
-                title: element.val()
+                title: $(this).val()
             }
-            , dataType: 'json'
-            , success: function(response) {
-                $("button[type=submit]").prop('disbled', false);
-
-                if (response.status) {
-                    $("#slug").val(response.slug);
-                }
+            , success: function(res) {
+                if (res.status) $("#slug").val(res.slug);
             }
         });
     });
 
-    $('#category').change(function() {
-        var category_id = $(this).val();
 
+    /* LOAD SUB CATEGORY */
+    $('#category').change(function() {
         $.ajax({
-            url: '{{ route('product-subCategories.list') }}'
-            , type: 'get'
+            url: '{{ route("product-subCategories.list") }}'
+            , type: 'GET'
             , data: {
-                category_id: category_id
+                category_id: $(this).val()
             }
-            , dataType: 'json'
-            , success: function(response) {
-                // Remove existing options except the first one
-                $('#sub_category').find('option').not(':first').remove();
-                // Append new options based on the response
-                $.each(response['subCategories'], function(key, item) {
-                    $('#sub_category').append(
-                        `<option value="${item.id}">${item.name}</option>`);
+            , success: function(res) {
+                $('#sub_category').find("option").not(":first").remove();
+
+                $.each(res.subCategories, function(_, item) {
+                    $('#sub_category').append(`<option value="${item.id}">${item.name}</option>`);
                 });
             }
-            , error: function(jqXHR, exception) {
-                console.log("Something went wrong");
-            }
         });
     });
 
 
+    /* DROPZONE */
     Dropzone.autoDiscover = false;
-    const dropzone = $("#image").dropzone({
+
+    $("#image").dropzone({
         url: "{{ route('temp-images.create') }}"
         , maxFiles: 10
-        , paramName: 'image'
+        , paramName: "image"
+        , acceptedFiles: "image/*"
         , addRemoveLinks: true
-        , acceptedFiles: "image/jpeg,image/png,image/gif"
         , headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-        , success: function(file, response) {
-            // $("#image_id").val(response.image_id);
-            //console.log(response)
-            var html = `<div class="col-md-3" id="image-row-${response.image_id}">
-                    <div class="card mr-3 ">
-                    <input type="hidden" name="image_array[]" value="${response.image_id}">
-                    <img src="${response.ImagePath}" class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <a href="javascript:void(0)" onclick="deleteImage(${response.image_id})" class="btn btn-danger">Delete</a>
-                    </div>
-                </div></div>`;
+        },
 
+        success: function(file, response) {
+            let html = `
+            <div class="col-md-3" id="image-row-${response.image_id}">
+                <div class="card mb-3">
+                    <input type="hidden" name="image_array[]" value="${response.image_id}">
+                    <img src="${response.ImagePath}" class="card-img-top">
+                    <div class="card-body p-2">
+                        <a href="javascript:void(0)" onclick="deleteImage(${response.image_id})" class="btn btn-danger btn-sm w-100">Delete</a>
+                    </div>
+                </div>
+            </div>`;
             $("#product-gallery").append(html);
-        }
-        , complete: function(file) {
+        },
+
+        complete: function(file) {
             this.removeFile(file);
         }
     });
 
+
+    /* DELETE IMAGE */
     function deleteImage(id) {
         $("#image-row-" + id).remove();
     }

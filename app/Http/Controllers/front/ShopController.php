@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductRating;
+use App\Models\Size;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -88,9 +89,25 @@ class ShopController extends Controller
         $product = Product::where('slug', $slug)
             ->withCount('productRatings')
             ->withSum('productRatings', 'rating')
-            ->with(['product_images', 'productRatings'])->first();
-        
-        $relatedProducts = Product::where('slug','!=', $slug)->where('category_id',$product->category_id)->get();
+            ->with(['product_images', 'productRatings'])
+            ->first();
+
+        // Fetch related sizes
+        $sizes = [];
+        if ($product && $product->sizes) {
+            // Decode JSON array
+            $sizeIds = json_decode($product->sizes, true);
+
+            // Get sizes from DB
+            $sizes = Size::whereIn('id', $sizeIds)->get();
+        }
+
+        // Attach sizes to product object
+        $product->sizes_detail = $sizes;
+
+        // return $product;
+
+        $relatedProducts = Product::where('slug', '!=', $slug)->where('category_id', $product->category_id)->get();
 
         // return $relatedProducts;
         // dd($product);
@@ -98,7 +115,7 @@ class ShopController extends Controller
             abort(404);
         }
 
-      
+
         // "product_ratings_count" => 1
         // "product_ratings_sum_rating" => 5.0
 

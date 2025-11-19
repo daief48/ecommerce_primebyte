@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="{{ asset('admin-assets/css/datetimepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/css/custom.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+        @yield('style') {{-- page-specific CSS --}}
+
 </head>
 
 <body class="hold-transition sidebar-mini">

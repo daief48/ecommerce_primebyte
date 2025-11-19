@@ -1,148 +1,10 @@
 @extends('Front.layouts.app')
-
-@section('style')
-<!-- EasyZoom CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/easyzoom/2.5.0/easyzoom.css" integrity="sha512-K/qe6a8tW+dKf/lZH/9O9cLFELzIq96vAcoJYp/0vZy6TPGTOs7Y9ylc6O5CkX+kXxSUoRcbL2u7s2kTnyFhAA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<style>
-/* ---------- Breadcrumb ---------- */
-.section-5 {
-    background: #f8f9fa;
-}
-.section-5 .breadcrumb a {
-    text-decoration: none;
-    font-weight: 500;
-    color: #555;
-}
-.section-5 .breadcrumb li {
-    font-size: 0.9rem;
-}
-
-/* ---------- Product Section ---------- */
-.section-7 .product-image-wrapper {
-    border-radius: 15px;
-    overflow: hidden;
-    position: relative;
-    cursor: zoom-in;
-}
-.section-7 .product-image-wrapper img {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-}
-
-/* Thumbnail gallery */
-.thumb-images img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-.thumb-images img:hover {
-    border: 2px solid #007bff;
-    transform: scale(1.1);
-}
-
-/* ---------- Product Details ---------- */
-.section-7 h1 {
-    font-weight: 700;
-    font-size: 2rem;
-}
-.section-7 .price h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #d9534f;
-}
-.section-7 .price del {
-    color: #999;
-    font-size: 1rem;
-    margin-left: 10px;
-}
-.section-7 .badge-sale {
-    background-color: #d9534f;
-    color: #fff;
-    font-size: 0.8rem;
-    padding: 0.25rem 0.5rem;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    border-radius: 5px;
-}
-.section-7 .btn-dark {
-    border-radius: 50px;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-.section-7 .btn-dark:hover {
-    background-color: #007bff;
-}
-
-/* ---------- Star Rating ---------- */
-.star-rating {
-    font-size: 1.2rem;
-    position: relative;
-}
-.star-rating .back-stars i {
-    color: #e4e5e9;
-}
-.star-rating .front-stars {
-    overflow: hidden;
-    white-space: nowrap;
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: #ffc107;
-}
-
-/* ---------- Tabs ---------- */
-.nav-tabs .nav-link {
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-weight: 600;
-    color: #333;
-}
-.nav-tabs .nav-link.active {
-    border-color: #007bff;
-    color: #007bff;
-}
-
-/* ---------- Reviews ---------- */
-.review-card {
-    border: 1px solid #e3e3e3;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* ---------- Related Products ---------- */
-.hover-shadow:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
-}
-.card h6 {
-    font-weight: 600;
-}
-.card del {
-    color: #999;
-}
-
-/* ---------- Sticky Add to Cart ---------- */
-.sticky-cart {
-    position: sticky;
-    top: 20px;
-}
-</style>
-@endsection
-
 @section('content')
+
 <!-- Breadcrumb -->
-<section class="section-5 pt-4 pb-2">
+<section class="section-5 pt-3 pb-3 mb-3 bg-white">
     <div class="container">
-        <ol class="breadcrumb bg-transparent p-0 mb-0">
+        <ol class="breadcrumb primary-color mb-0">
             <li class="breadcrumb-item"><a href="{{ route('front.home') }}">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('front.shop') }}">Shop</a></li>
             <li class="breadcrumb-item active">{{ $product->title }}</li>
@@ -150,113 +12,281 @@
     </div>
 </section>
 
-<!-- Product Section -->
-<section class="section-7 py-5">
+<!-- Product Details -->
+<section class="section-7 pt-3 mb-3">
     <div class="container">
-        <div class="row g-4">
-            <!-- Product Images -->
-            <div class="col-md-5">
-                @if($product->product_images->count() > 0)
-                <div class="easyzoom easyzoom--overlay mb-3">
-                    <a href="{{ asset('uploads/products/large/' . $product->product_images[0]->image) }}">
-                        <img src="{{ asset('uploads/products/large/' . $product->product_images[0]->image) }}" class="img-fluid rounded shadow">
-                        @if($product->compare_price > 0)
-                        <span class="badge-sale">Sale</span>
-                        @endif
-                    </a>
-                </div>
 
-                <!-- Thumbnails -->
-                <div class="d-flex gap-2 overflow-auto thumb-images">
-                    @foreach($product->product_images as $img)
-                    <a href="{{ asset('uploads/products/large/' . $img->image) }}" class="easyzoom-thumb" data-standard="{{ asset('uploads/products/large/' . $img->image) }}">
-                        <img src="{{ asset('uploads/products/large/' . $img->image) }}" class="img-thumbnail">
-                    </a>
-                    @endforeach
+        <!-- Flash Messages -->
+        @foreach (['success', 'error'] as $msg)
+            @if(Session::has($msg))
+                <div class="alert alert-{{ $msg == 'success' ? 'success' : 'danger' }} alert-dismissible fade show">
+                    {!! Session::get($msg) !!}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                @else
-                <img class="img-fluid shadow rounded" src="{{ asset('admin-assets/img/default-150x150.png') }}" alt="No Image">
-                @endif
+            @endif
+        @endforeach
+
+        <div class="row g-4">
+
+            <!-- Product Images Carousel -->
+            <div class="col-md-5">
+                <div id="product-carousel" class="carousel slide shadow-sm rounded" data-bs-ride="carousel">
+                    <div class="carousel-inner bg-light rounded">
+                        @if ($product->product_images->isNotEmpty())
+                            @foreach ($product->product_images as $key => $productImage)
+                                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                    <img class="d-block w-100 rounded" style="height: 500px; object-fit: cover;"
+                                        src="{{ $productImage->image ? asset('uploads/products/large/' . $productImage->image) : asset('admin-assets/img/default-150x150.png') }}">
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="carousel-item active">
+                                <img class="d-block w-100 rounded" src="{{ asset('admin-assets/img/default-150x150.png') }}">
+                            </div>
+                        @endif
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#product-carousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon bg-dark rounded-circle p-3"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#product-carousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon bg-dark rounded-circle p-3"></span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Product Details -->
+            <!-- Product Info -->
             <div class="col-md-7">
-                <div class="p-4 bg-white rounded shadow sticky-cart">
-                    <h1 class="mb-3">{{ $product->title }}</h1>
+                <div class="bg-white shadow-sm rounded p-4">
+                    <h1 class="h3 fw-bold">{{ $product->title }}</h1>
 
-                    <!-- Rating -->
+                    <!-- Ratings -->
                     <div class="d-flex align-items-center mb-3">
-                        <div class="star-rating me-2 position-relative">
-                            <div class="back-stars">@for($i=0;$i<5;$i++)<i class="fa fa-star"></i>@endfor</div>
-                            <div class="front-stars position-absolute top-0 start-0 overflow-hidden" style="width:{{ $avgRatingPer }}%">@for($i=0;$i<5;$i++)<i class="fa fa-star"></i>@endfor</div>
+                        <div class="star-rating me-2">
+                            <div class="back-stars position-relative">
+                                @for ($i = 0; $i < 5; $i++)
+                                    <i class="fa fa-star text-muted"></i>
+                                @endfor
+                                <div class="front-stars position-absolute top-0 start-0 overflow-hidden" style="width: {{ $avgRatingPer }}%">
+                                    @for ($i = 0; $i < 5; $i++)
+                                        <i class="fa fa-star text-warning"></i>
+                                    @endfor
+                                </div>
+                            </div>
                         </div>
-                        <small>({{ $product->product_ratings_count }} Reviews)</small>
+                        <small class="text-muted">({{ $product->product_ratings_count }} {{ Str::plural('Review', $product->product_ratings_count) }})</small>
                     </div>
+
+                    <!-- Sizes -->
+                    @if(!empty($product->sizes_detail) && $product->sizes_detail->isNotEmpty())
+                        <div class="mb-3">
+                            <label class="fw-bold">Size:</label>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                @foreach($product->sizes_detail as $size)
+                                    <span class="badge bg-secondary">{{ $size->name }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Colors -->
+                    @if(!empty($product->color_name))
+                        @php
+                            $colors = json_decode($product->color_name, true) ?? [];
+                            $color_codes = json_decode($product->color_code, true) ?? [];
+                        @endphp
+                        @if(!empty($colors))
+                            <div class="mb-3">
+                                <label class="fw-bold">Color:</label>
+                                <div class="d-flex flex-wrap gap-2 mt-1">
+                                    @foreach($colors as $index => $color)
+                                        <span class="color-circle rounded-circle" style="width:25px;height:25px;background-color: {{ $color_codes[$index] ?? '#000' }}" title="{{ $color }}"></span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    @endif
 
                     <!-- Price -->
-                    <div class="price mb-3">
-                        <h2>${{ $product->price }}</h2>
-                        @if($product->compare_price > 0)
-                        <del>${{ $product->compare_price }}</del>
-                        @endif
-                    </div>
+                    <h2 class="fw-bold text-primary">${{ $product->price }}</h2>
+                    @if ($product->compare_price > 0)
+                        <h4 class="text-muted"><del>${{ $product->compare_price }}</del></h4>
+                    @endif
 
                     <!-- Short Description -->
-                    <div class="mb-4">{!! $product->short_description !!}</div>
+                    <div class="mb-3">{!! $product->short_description !!}</div>
 
-                    <!-- Add to Cart Button -->
-                    @php $inStock = $product->track_qty=='Yes'? $product->qty>0 : true; @endphp
-                    <a class="btn btn-dark btn-lg {{ $inStock ? '' : 'disabled' }}" href="javascript:void(0);" @if($inStock) onclick="addToCart({{ $product->id }});" @endif>
-                        <i class="fa fa-shopping-cart"></i> {{ $inStock ? 'Add to Cart' : 'Out of Stock' }}
-                    </a>
+                    <!-- Add to Cart -->
+                    @if ($product->track_qty == 'Yes' && $product->qty <= 0)
+                        <button class="btn btn-secondary btn-lg w-100">Out Of Stock</button>
+                    @else
+                        <a class="btn btn-dark btn-lg w-100 text-white" href="javascript:void(0);" onclick="addToCart({{ $product->id }});">
+                            <i class="fa fa-shopping-cart me-2"></i> Add To Cart
+                        </a>
+                    @endif
                 </div>
             </div>
-        </div>
 
-        <!-- Related Products -->
-        @if(!empty($relatedProducts))
-        <section class="py-5 bg-white mt-5">
-            <h3 class="mb-4">Related Products</h3>
-            <div class="row g-4">
-                @foreach($relatedProducts as $rel)
-                @php $image = $rel->product_images->first(); @endphp
-                <div class="col-md-3">
-                    <div class="card h-100 shadow-sm rounded hover-shadow">
-                        <a href="{{ route('front.product', $rel->slug) }}">
-                            <img class="card-img-top rounded-top" style="height:250px; object-fit:cover;" src="{{ $image ? asset('uploads/products/large/'.$image->image) : asset('admin-assets/img/default-150x150.png') }}">
-                        </a>
-                        <div class="card-body text-center">
-                            <h6>{{ $rel->title }}</h6>
-                            <p><strong>${{ $rel->price }}</strong> @if($rel->compare_price>0)<del class="text-muted ms-2">${{ $rel->compare_price }}</del>@endif</p>
-                            @php $inStock = $rel->track_qty=='Yes'? $rel->qty>0 : true; @endphp
-                            <a class="btn btn-dark btn-sm mt-2 {{ $inStock ? '' : 'disabled' }}" href="javascript:void(0);" @if($inStock) onclick="addToCart({{ $rel->id }});" @endif>
-                                {{ $inStock ? 'Add to Cart' : 'Out of Stock' }}
-                            </a>
+            <!-- Tabs -->
+            <div class="col-12 mt-5">
+                <div class="bg-white shadow-sm rounded p-4">
+                    <ul class="nav nav-tabs mb-3" id="productTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button">Description</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button">Shipping & Returns</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button">Reviews</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="productTabContent">
+                        <div class="tab-pane fade show active" id="description">
+                            {!! $product->description !!}
+                        </div>
+                        <div class="tab-pane fade" id="shipping">
+                            {!! $product->shipping_returns !!}
+                        </div>
+                        <div class="tab-pane fade" id="reviews">
+                            <!-- Write a Review -->
+                            <form id="ratingForm" class="row g-3" method="post">
+                                @csrf
+                                <h4 class="fw-bold mb-3">Write a Review</h4>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" name="name" placeholder="Name">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="email" class="form-control" name="email" placeholder="Email">
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <label class="me-3">Rating:</label>
+                                        <div class="rating d-flex">
+                                            @for($i=5;$i>=1;$i--)
+                                                <input type="radio" id="rating-{{ $i }}" name="rating" value="{{ $i }}">
+                                                <label for="rating-{{ $i }}" class="me-1"><i class="fas fa-star text-warning"></i></label>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <textarea class="form-control" name="comment" rows="4" placeholder="How was your overall experience?"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-dark">Submit Review</button>
+                                </div>
+                            </form>
+
+                            <!-- Overall Rating -->
+                            <div class="mt-5">
+                                <h5 class="fw-bold">Overall Rating: {{ $rating }}</h5>
+                                <div class="star-rating mb-3">
+                                    <div class="back-stars position-relative">
+                                        @for($i=0;$i<5;$i++)
+                                            <i class="fa fa-star text-muted"></i>
+                                        @endfor
+                                        <div class="front-stars position-absolute top-0 start-0 overflow-hidden" style="width: {{ $avgRatingPer }}%">
+                                            @for($i=0;$i<5;$i++)
+                                                <i class="fa fa-star text-warning"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-muted">({{ $product->product_ratings_count }} {{ Str::plural('Review', $product->product_ratings_count) }})</p>
+                            </div>
+
+                            <!-- Individual Reviews -->
+                            @forelse ($product->productRatings as $rating)
+                                @php $ratingPer = ($rating->rating * 100)/5; @endphp
+                                <div class="mb-4 p-3 bg-light rounded shadow-sm">
+                                    <strong>{{ $rating->username }}</strong>
+                                    <div class="star-rating mt-2">
+                                        <div class="back-stars position-relative">
+                                            @for($i=0;$i<5;$i++)
+                                                <i class="fa fa-star text-muted"></i>
+                                            @endfor
+                                            <div class="front-stars position-absolute top-0 start-0 overflow-hidden" style="width: {{ $ratingPer }}%">
+                                                @for($i=0;$i<5;$i++)
+                                                    <i class="fa fa-star text-warning"></i>
+                                                @endfor
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="mt-2">{{ $rating->comment }}</p>
+                                </div>
+                            @empty
+                                <p>No reviews found for this product.</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
-                @endforeach
             </div>
-        </section>
-        @endif
+
+        </div>
     </div>
 </section>
+
+<!-- Related Products -->
+@if(!empty($relatedProducts))
+<section class="pt-5 section-8">
+    <div class="container">
+        <h2 class="mb-4">Related Products</h2>
+        <div class="row g-3">
+            @foreach($relatedProducts as $recordProduct)
+                @php $productImage = $recordProduct->product_images->first(); @endphp
+                <div class="col-md-3">
+                    <div class="card product-card shadow-sm">
+                        <a href="{{ route('front.product', $recordProduct->slug) }}">
+                            <img class="card-img-top" style="height: 250px; object-fit: cover;" src="{{ $productImage? asset('uploads/products/large/'.$productImage->image) : asset('admin-assets/img/default-150x150.png') }}">
+                        </a>
+                        <div class="card-body text-center">
+                            <h6>{{ $recordProduct->title }}</h6>
+                            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                                <span class="fw-bold">${{ $recordProduct->price }}</span>
+                                @if($recordProduct->compare_price>0)
+                                    <span class="text-muted"><del>${{ $recordProduct->compare_price }}</del></span>
+                                @endif
+                            </div>
+                            <div class="mt-2">
+                                @if($recordProduct->track_qty == 'Yes' && $recordProduct->qty <=0)
+                                    <button class="btn btn-secondary btn-sm w-100">Out Of Stock</button>
+                                @else
+                                    <button class="btn btn-dark btn-sm w-100" onclick="addToCart({{ $recordProduct->id }})">Add To Cart</button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 @endsection
 
 @section('customJs')
-<!-- EasyZoom JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/easyzoom/2.5.0/easyzoom.js" integrity="sha512-6X6T8XJHUMCSd4ebQuUVuQ2avhF3Kj+GZg0WrXT4LxjT0CjRjrN+Y/NZb53Nq6Rjjzk77x6p9YqF/j3KHXdnSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
 <script>
-$(document).ready(function(){
-    var $easyzoom = $('.easyzoom').easyZoom();
-    var api = $easyzoom.data('easyZoom');
-
-    $('.easyzoom-thumb').on('click', function(e) {
+    $("#ratingForm").submit(function(e){
         e.preventDefault();
-        var $this = $(this);
-        api.swap($this.attr('href'), $this.data('standard'));
+        $.ajax({
+            url: '{{ route("front.saveRating", $product->id) }}',
+            type: 'post',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response){
+                if(response.status){
+                    location.reload();
+                } else {
+                    // handle validation errors
+                    $.each(response.errors, function(key,val){
+                        let input = $("[name='"+key+"']");
+                        input.addClass('is-invalid');
+                        input.next('p').addClass('invalid-feedback').html(val);
+                    });
+                }
+            },
+            error: function(){ console.log('Something went wrong'); }
+        });
     });
-});
 </script>
 @endsection
