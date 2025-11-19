@@ -171,6 +171,23 @@
                                 </select>
                                 <p class="error"></p>
                             </div>
+
+                            
+
+                <!-- Size (Optional) -->
+                <div class="mb-3">
+                    <label for="size" class="form-label">Size (Optional)</label>
+                    <select name="size_id" id="size" class="form-control">
+                        <option value="">Select Size (Optional)</option>
+                        @foreach($sizes as $size)
+                            <option value="{{ $size->id }}" {{ old('size_id') == $size->id ? 'selected' : '' }}>
+                                {{ $size->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+
                             <div class="mb-3">
                                 <label for="sub_category">Sub category</label>
                                 <select name="sub_category" id="sub_category" class="form-control">

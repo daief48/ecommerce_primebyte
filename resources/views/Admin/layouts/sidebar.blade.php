@@ -48,6 +48,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('sizes.index') }}" class="nav-link">
+                        <i class="nav-icon fas fa-tag"></i>
+                        <p>Size</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('products.productRating') }}" class="nav-link">
                         <i class="nav-icon fas fa-tag"></i>
                         <p>Ratings Status</p>
