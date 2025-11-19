@@ -384,37 +384,52 @@
         });
 
 
-        Dropzone.autoDiscover = false;
-        const dropzone = $("#image").dropzone({
-            url: "{{ route('product-images.update') }}",
-            maxFiles: 10,
-            paramName: 'image',
-            params: {
-                'product_id': "{{ $product->id }}"
-            },
-            addRemoveLinks: true,
-            acceptedFiles: "image/jpeg,image/png,image/gif",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(file, response) {
-                // $("#image_id").val(response.image_id);
-                //console.log(response)
-                var html = `<div class="col-md-3" id="image-row-${response.image_id}">
-                    <div class="card mr-3 ">
-                    <input type="hidden" name="image_array[]" value="${response.image_id}">
-                    <img src="${response.ImagePath}" class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <a href="javascript:void(0)" onclick="deleteImage(${response.image_id})" class="btn btn-danger">Delete</a>
-                    </div>
-                </div></div>`;
+Dropzone.autoDiscover = false;
 
-                $("#product-gallery").append(html);
-            },
-            complete: function(file) {
-                this.removeFile(file);
-            }
-        });
+const dropzone = new Dropzone("#image", {
+    url: "{{ route('product-images.update') }}",
+    paramName: 'image',
+    params: {
+        'product_id': "{{ $product->id }}"
+    },
+    maxFiles: 10,
+    addRemoveLinks: true,
+    acceptedFiles: "image/jpeg,image/png,image/gif",
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    success: function(file, response) {
+        // Check if response contains image_id and ImagePath
+        if (response.status && response.image_id && response.ImagePath) {
+            var html = `
+                <div class="col-md-3" id="image-row-${response.image_id}">
+                    <div class="card mr-3">
+                        <input type="hidden" name="image_array[]" value="${response.image_id}">
+                        <img src="${response.ImagePath}" class="card-img-top" alt="Product Image">
+                        <div class="card-body">
+                            <a href="javascript:void(0)" onclick="deleteImage(${response.image_id})" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $("#product-gallery").append(html);
+        } else {
+            alert('Upload failed: invalid server response');
+        }
+    },
+    removedfile: function(file) {
+        // Remove Dropzone preview only, not gallery images
+        if (file.previewElement != null && file.previewElement.parentNode != null) {
+            file.previewElement.parentNode.removeChild(file.previewElement);
+        }
+    },
+    error: function(file, response) {
+        console.log(response);
+        alert('Upload error!');
+    }
+});
+
+
 
         function deleteImage(id) {
     if (confirm('Are you sure you want to delete this image?')) {

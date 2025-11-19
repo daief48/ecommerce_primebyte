@@ -11,45 +11,53 @@ use Intervention\Image\Facades\Image;
 class ProductImageController extends Controller
 {
     public function update(Request $request)
-    {
-        $image = $request->file('image');
-        $ext = $image->getClientOriginalExtension();
-        $sourcePath = $image->getPathName();
+{
+    $image = $request->file('image');
 
-
-        $productImage = new ProductImage();
-        $productImage->product_id = $request->product_id;
-        $productImage->image = 'NULL';
-        $productImage->save();
-
-        $imageName = $request->product_id . '-' . $productImage->id . '-' . time() . '.' . $ext;
-        $productImage->image = $imageName;
-        $productImage->save();
-
-
-        // Large Image
-        $destPath = public_path() . '/uploads/products/large/' . $imageName;
-        $image = Image::make($sourcePath);
-        $image->resize(1400, null, function ($constraint) {
-            $constraint->aspectRatio();
-        });
-        $image->save($destPath);
-
-        // Small Image
-
-        $destPath = public_path() . '/uploads/products/small/' . $imageName;
-        $image = Image::make($sourcePath);
-        $image->fit(300, 300);
-        $image->save($destPath);
-
-
+    if (!$image) {
         return response()->json([
-            'status' => true,
-            'image_id' => $productImage->id,
-            'imagePath' => asset('uploads/products/large/' . $productImage->image),
-            'message' => 'Image Saved successfully'
+            'status' => false,
+            'message' => 'No image uploaded'
         ]);
     }
+
+    $ext = $image->getClientOriginalExtension();
+    $sourcePath = $image->getPathName();
+
+    // Save a new ProductImage entry with temporary NULL
+    $productImage = new ProductImage();
+    $productImage->product_id = $request->product_id;
+    $productImage->image = 'NULL';
+    $productImage->save();
+
+    // Generate unique image name
+    $imageName = $request->product_id . '-' . $productImage->id . '-' . time() . '.' . $ext;
+    $productImage->image = $imageName;
+    $productImage->save();
+
+    // Large Image
+    $destPathLarge = public_path('uploads/products/large/' . $imageName);
+    $imgLarge = Image::make($sourcePath);
+    $imgLarge->resize(1400, null, function ($constraint) {
+        $constraint->aspectRatio();
+    });
+    $imgLarge->save($destPathLarge);
+
+    // Small Image
+    $destPathSmall = public_path('uploads/products/small/' . $imageName);
+    $imgSmall = Image::make($sourcePath);
+    $imgSmall->fit(300, 300);
+    $imgSmall->save($destPathSmall);
+
+    // Return JSON for Dropzone preview
+    return response()->json([
+        'status' => true,
+        'image_id' => $productImage->id,
+        'ImagePath' => asset('uploads/products/large/' . $productImage->image),
+        'message' => 'Image Saved successfully'
+    ]);
+}
+
 
     public function destroy(Request $request)
     {
