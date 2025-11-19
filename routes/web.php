@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\BrandController;
 use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\Admin\DiscountCodeController;
 use App\Http\Controllers\admin\HomeController;
+use App\Http\Controllers\SizeController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ProductController;
@@ -188,6 +189,14 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/pages/{id}', [PageController::class, 'edit'])->name('pages.edit');
         Route::put('/pages/{id}', [PageController::class, 'update'])->name('pages.update');
         Route::delete('/pages/{id}', [PageController::class, 'destroy'])->name('pages.delete');
+        // Size Routes
+Route::get('/sizes', [SizeController::class, 'index'])->name('sizes.index');
+Route::get('/sizes/create', [SizeController::class, 'create'])->name('sizes.create');
+Route::post('/sizes', [SizeController::class, 'store'])->name('sizes.store');
+Route::get('/sizes/{size}', [SizeController::class, 'show'])->name('sizes.show');
+Route::get('/sizes/{size}/edit', [SizeController::class, 'edit'])->name('sizes.edit');
+Route::put('/sizes/{size}', [SizeController::class, 'update'])->name('sizes.update');
+Route::delete('/sizes/{size}', [SizeController::class, 'destroy'])->name('sizes.destroy');
 
         // Setting Routes
         Route::get('/change-password', [SettingController::class, 'showChangePassword'])->name('admin.showChangePassword');

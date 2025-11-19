@@ -193,6 +193,28 @@
                                 </select>
                                 <p class="error"></p>
                             </div>
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="h4 mb-3">Product Size</h2>
+        <div class="mb-3">
+            <label for="size">Size</label>
+            <select name="size_id" id="size" class="form-control">
+                <option value="">Select a Size</option>
+                @foreach($sizes as $size)
+                    <option value="{{ $size->id }}" 
+                        @if(old('size_id', isset($product) ? $product->size_id : '') == $size->id) selected @endif>
+                        {{ $size->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('size_id')
+                <span class="text-danger">{{ $message }}</span>
+            @enderror
+        </div>
+    </div>
+</div>
+
+                            
                             <div class="mb-3">
                                 <label for="sub_category">Sub Category</label>
                                 <select name="sub_category" id="sub_category" class="form-control">

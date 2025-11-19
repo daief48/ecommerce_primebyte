@@ -9,6 +9,26 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'slug',
+        'category_id',
+        'sub_category_id',
+        'brand_id',
+        'size_id', // Add this
+        'price',
+        'compare_price',
+        'sku',
+        'track_qty',
+        'qty',
+        'is_featured',
+        'description',
+        'short_description',
+        'shipping_returns',
+        'related_products',
+        'barcode',
+    ];
+
     public function product_images()
     {
         return $this->hasMany(ProductImage::class);
@@ -17,5 +37,11 @@ class Product extends Model
     public function productRatings()
     {
         return $this->hasMany(ProductRating::class)->where('status', 1);
+    }
+
+    // Add this relationship
+    public function size()
+    {
+        return $this->belongsTo(Size::class);
     }
 }
