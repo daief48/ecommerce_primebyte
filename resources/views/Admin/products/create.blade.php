@@ -246,8 +246,7 @@
         $("button[type=submit]").prop('disabled', true);
 
         $.ajax({
-            url: '{{ route('
-            products.store ') }}'
+            url: '{{ route('products.store') }}'
             , type: 'post'
             , data: element.serializeArray()
             , dataType: 'json'
@@ -299,8 +298,7 @@
         $("button[type=submit]").prop('disbled', true);
 
         $.ajax({
-            url: '{{ route('
-            getSlug ') }}'
+            url: '{{ route('getSlug') }}'
             , type: 'get'
             , data: {
                 title: element.val()
@@ -320,8 +318,7 @@
         var category_id = $(this).val();
 
         $.ajax({
-            url: '{{ route('
-            product - subCategories.list ') }}'
+            url: '{{ route('product-subCategories.list') }}'
             , type: 'get'
             , data: {
                 category_id: category_id
